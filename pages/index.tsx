@@ -10,7 +10,7 @@ const Home: NextPage = () => {
       <Head>
         <title>North Shore Shop Record Label</title>
         <meta name="description" content="North Shore Shop record label" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/images/favicon.png" />
       </Head>
 
       <main>
