@@ -1,64 +1,47 @@
+import CheckoutForm from "components/CheckoutForm";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import styles from "../styles/Home.module.css";
 import nssRed from "../public/images/north-shore-shop-logo.png";
 
 const Home: NextPage = () => {
   return (
-    <div className={styles.container}>
+    <div className="h-screen font-mono">
       <Head>
-        <title>North Shore Shop Record Label</title>
+        <title>North Shore Shop - Art and Music Store</title>
         <meta name="description" content="North Shore Shop record label" />
         <link rel="icon" href="/images/favicon.png" />
       </Head>
 
       <main>
-        <Image src={nssRed} alt="" />
+        <div className="container mx-auto">
+          <Image src={nssRed} alt="The North Shore Shop" />
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <Image
+                src="/images/shirt-fur-big-front2.jpg"
+                width="1600"
+                height="2464"
+                alt="Furbaby squares T Shirt front"
+              />
+              <button>Buy Now</button>
+              <CheckoutForm />
+            </div>
+            <div>
+              <Image
+                src="/images/shirt-squares-front.jpg"
+                width="1600"
+                height="2464"
+                alt="Furbaby squares T Shirt front"
+              />
+            </div>
+          </section>
+        </div>
       </main>
 
-      {/* <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{" "}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h2>Learn &rarr;</h2>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h2>Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h2>Deploy &rarr;</h2>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main> */}
-
-      <footer className={styles.footer}>North Shore Shop &copy; 2021</footer>
+      <footer className="container mx-auto text-center">
+        North Shore Shop &copy; 2022
+      </footer>
     </div>
   );
 };
