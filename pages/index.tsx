@@ -1,49 +1,50 @@
 import CheckoutForm from "components/CheckoutForm";
 import type { NextPage } from "next";
 import Head from "next/head";
+import Hero from "components/Hero";
 import Image from "next/image";
-import nssRed from "../public/images/north-shore-shop-logo.png";
+import Layout from "components/Layout";
+import Products from "components/Products";
+import Stripe from "stripe";
+import { buildPriceProductInventory } from "lib/build-price-product-inventory";
 
-const Home: NextPage = () => {
+const Home: NextPage = ({ inventory }) => {
   return (
-    <div className="h-screen font-mono">
+    <div>
       <Head>
         <title>North Shore Shop - Art and Music Store</title>
         <meta name="description" content="North Shore Shop record label" />
         <link rel="icon" href="/images/favicon.png" />
       </Head>
 
-      <main>
+      <Layout>
+        <Hero />
         <div className="container mx-auto">
-          <Image src={nssRed} alt="The North Shore Shop" />
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div>
-              <Image
-                src="/images/shirt-fur-big-front2.jpg"
-                width="1600"
-                height="2464"
-                alt="Furbaby squares T Shirt front"
-              />
-              <button>Buy Now</button>
-              <CheckoutForm />
-            </div>
-            <div>
-              <Image
-                src="/images/shirt-squares-front.jpg"
-                width="1600"
-                height="2464"
-                alt="Furbaby squares T Shirt front"
-              />
-            </div>
-          </section>
+          <Products inventory={inventory} />
         </div>
-      </main>
-
-      <footer className="container mx-auto text-center">
-        North Shore Shop &copy; 2022
-      </footer>
+      </Layout>
     </div>
   );
 };
+
+export async function getServerSideProps() {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: "2022-08-01",
+  });
+
+  const prices = await stripe.prices.list({
+    limit: 100,
+  });
+
+  const products = await stripe.products.list({
+    limit: 100,
+  });
+
+  const inventory = buildPriceProductInventory(prices.data, products.data);
+
+  return {
+    props: { inventory },
+  };
+}
 
 export default Home;

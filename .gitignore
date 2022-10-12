@@ -32,3 +32,6 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# Stripe manual Product image updater
+/pages/api/update-product.ts
