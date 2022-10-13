@@ -48,12 +48,11 @@ export default function Nav() {
           </div>
           <div className="hidden md:absolute md:inset-y-0 md:right-0 md:flex md:items-center md:justify-end">
             <span className="inline-flex rounded-md shadow">
-              <a
-                href="#"
-                className="inline-flex items-center rounded-md border border-transparent bg-white px-4 py-2 text-base font-medium text-indigo-600 hover:bg-gray-50"
-              >
-                Checkout
-              </a>
+              <Link href="/cart">
+                <a className="inline-flex items-center rounded-md border border-transparent bg-white px-4 py-2 text-base font-medium text-indigo-600 hover:bg-gray-50">
+                  Checkout
+                </a>
+              </Link>
             </span>
           </div>
         </nav>

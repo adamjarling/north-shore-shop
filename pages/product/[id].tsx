@@ -15,7 +15,7 @@ import Nav from "components/nav/Nav";
 import { StarIcon } from "@heroicons/react/20/solid";
 import { RadioGroup } from "@headlessui/react";
 import Stripe from "stripe";
-import { useShoppingCart, DebugCart } from "use-shopping-cart";
+import { useShoppingCart } from "use-shopping-cart";
 import { buildPriceProductInventory } from "lib/build-price-product-inventory";
 import { useState } from "react";
 
@@ -42,8 +42,6 @@ interface ProductPageProps {
 
 const ProductPage: React.FC<ProductPageProps> = ({ inventoryItem }) => {
   const { addItem } = useShoppingCart();
-
-  if (!inventoryItem) return null;
 
   const product = {
     name: inventoryItem.name,
@@ -88,15 +86,18 @@ const ProductPage: React.FC<ProductPageProps> = ({ inventoryItem }) => {
     addItem({
       currency: "usd",
       name: inventoryItem.name,
-      id: inventoryItem.id,
+      id: inventoryItem.priceId,
       price: inventoryItem.price as number,
-      product_data: { shirtSize: selectedSize },
+      product_data: {
+        productId: inventoryItem.id,
+        productImage: inventoryItem.images[0],
+        shirtSize: selectedSize.name,
+      },
     });
   };
 
   return (
     <Layout>
-      <DebugCart />
       <div className="bg-white">
         <div className="pt-6 pb-16 sm:pb-24">
           <Nav />
@@ -139,6 +140,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ inventoryItem }) => {
               </li>
             </ol>
           </nav>
+
           <div className="mx-auto mt-8 max-w-2xl px-4 sm:px-6 lg:max-w-7xl lg:px-8">
             <div className="lg:grid lg:auto-rows-min lg:grid-cols-12 lg:gap-x-8">
               <div className="lg:col-span-5 lg:col-start-8">
@@ -210,99 +212,108 @@ const ProductPage: React.FC<ProductPageProps> = ({ inventoryItem }) => {
               </div>
               <div className="mt-8 lg:col-span-5">
                 <form>
-                  {/* Color picker */}
-                  <div>
-                    <h2 className="text-sm font-medium text-gray-900">Color</h2>
-                    <RadioGroup
-                      value={selectedColor}
-                      onChange={setSelectedColor}
-                      className="mt-2"
-                    >
-                      <RadioGroup.Label className="sr-only">
-                        {" "}
-                        Choose a color{" "}
-                      </RadioGroup.Label>
-                      <div className="flex items-center space-x-3">
-                        {product.colors.map((color) => (
-                          <RadioGroup.Option
-                            key={color.name}
-                            value={color}
-                            className={({ active, checked }) =>
-                              classNames(
-                                color.selectedColor,
-                                active && checked ? "ring ring-offset-1" : "",
-                                !active && checked ? "ring-2" : "",
-                                "-m-0.5 relative p-0.5 rounded-full flex items-center justify-center cursor-pointer focus:outline-none"
-                              )
-                            }
-                          >
-                            <RadioGroup.Label as="span" className="sr-only">
-                              {" "}
-                              {color.name}{" "}
-                            </RadioGroup.Label>
-                            <span
-                              aria-hidden="true"
-                              className={classNames(
-                                color.bgColor,
-                                "h-8 w-8 border border-black border-opacity-10 rounded-full"
-                              )}
-                            />
-                          </RadioGroup.Option>
-                        ))}
+                  {inventoryItem.metadata?.shirt && (
+                    <>
+                      {/* Color picker */}
+                      <div>
+                        <h2 className="text-sm font-medium text-gray-900">
+                          Color
+                        </h2>
+                        <RadioGroup
+                          value={selectedColor}
+                          onChange={setSelectedColor}
+                          className="mt-2"
+                        >
+                          <RadioGroup.Label className="sr-only">
+                            {" "}
+                            Choose a color{" "}
+                          </RadioGroup.Label>
+                          <div className="flex items-center space-x-3">
+                            {product.colors.map((color) => (
+                              <RadioGroup.Option
+                                key={color.name}
+                                value={color}
+                                className={({ active, checked }) =>
+                                  classNames(
+                                    color.selectedColor,
+                                    active && checked
+                                      ? "ring ring-offset-1"
+                                      : "",
+                                    !active && checked ? "ring-2" : "",
+                                    "-m-0.5 relative p-0.5 rounded-full flex items-center justify-center cursor-pointer focus:outline-none"
+                                  )
+                                }
+                              >
+                                <RadioGroup.Label as="span" className="sr-only">
+                                  {" "}
+                                  {color.name}{" "}
+                                </RadioGroup.Label>
+                                <span
+                                  aria-hidden="true"
+                                  className={classNames(
+                                    color.bgColor,
+                                    "h-8 w-8 border border-black border-opacity-10 rounded-full"
+                                  )}
+                                />
+                              </RadioGroup.Option>
+                            ))}
+                          </div>
+                        </RadioGroup>
                       </div>
-                    </RadioGroup>
-                  </div>
-                  {/* Size picker */}
-                  <div className="mt-8">
-                    <div className="flex items-center justify-between">
-                      <h2 className="text-sm font-medium text-gray-900">
-                        Size
-                      </h2>
-                      <a
-                        href="#"
-                        className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
-                      >
-                        See sizing chart
-                      </a>
-                    </div>
-                    <RadioGroup
-                      value={selectedSize}
-                      onChange={setSelectedSize}
-                      className="mt-2"
-                    >
-                      <RadioGroup.Label className="sr-only">
-                        {" "}
-                        Choose a size{" "}
-                      </RadioGroup.Label>
-                      <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
-                        {product.sizes.map((size) => (
-                          <RadioGroup.Option
-                            key={size.name}
-                            value={size}
-                            className={({ active, checked }) =>
-                              classNames(
-                                size.inStock
-                                  ? "cursor-pointer focus:outline-none"
-                                  : "opacity-25 cursor-not-allowed",
-                                active
-                                  ? "ring-2 ring-offset-2 ring-indigo-500"
-                                  : "",
-                                checked
-                                  ? "bg-indigo-600 border-transparent text-white hover:bg-indigo-700"
-                                  : "bg-white border-gray-200 text-gray-900 hover:bg-gray-50",
-                                "border rounded-md py-3 px-3 flex items-center justify-center text-sm font-medium uppercase sm:flex-1"
-                              )
-                            }
-                            disabled={!size.inStock}
+                      {/* Size picker */}
+                      <div className="mt-8">
+                        <div className="flex items-center justify-between">
+                          <h2 className="text-sm font-medium text-gray-900">
+                            Size
+                          </h2>
+                          <a
+                            href="#"
+                            className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
                           >
-                            <RadioGroup.Label as="span">
-                              {size.name}
-                            </RadioGroup.Label>
-                          </RadioGroup.Option>
-                        ))}
+                            See sizing chart
+                          </a>
+                        </div>
+                        <RadioGroup
+                          value={selectedSize}
+                          onChange={setSelectedSize}
+                          className="mt-2"
+                        >
+                          <RadioGroup.Label className="sr-only">
+                            {" "}
+                            Choose a size{" "}
+                          </RadioGroup.Label>
+                          <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+                            {product.sizes.map((size) => (
+                              <RadioGroup.Option
+                                key={size.name}
+                                value={size}
+                                className={({ active, checked }) =>
+                                  classNames(
+                                    size.inStock
+                                      ? "cursor-pointer focus:outline-none"
+                                      : "opacity-25 cursor-not-allowed",
+                                    active
+                                      ? "ring-2 ring-offset-2 ring-indigo-500"
+                                      : "",
+                                    checked
+                                      ? "bg-indigo-600 border-transparent text-white hover:bg-indigo-700"
+                                      : "bg-white border-gray-200 text-gray-900 hover:bg-gray-50",
+                                    "border rounded-md py-3 px-3 flex items-center justify-center text-sm font-medium uppercase sm:flex-1"
+                                  )
+                                }
+                                disabled={!size.inStock}
+                              >
+                                <RadioGroup.Label as="span">
+                                  {size.name}
+                                </RadioGroup.Label>
+                              </RadioGroup.Option>
+                            ))}
+                          </div>
+                        </RadioGroup>
                       </div>
-                    </RadioGroup>
-                  </div>
+                    </>
+                  )}
+
                   <button
                     onClick={handleAddItemClick}
                     type="button"
@@ -323,18 +334,22 @@ const ProductPage: React.FC<ProductPageProps> = ({ inventoryItem }) => {
                     }}
                   />
                 </div>
-                <div className="mt-8 border-t border-gray-200 pt-8">
-                  <h2 className="text-sm font-medium text-gray-900">
-                    Fabric &amp; Care
-                  </h2>
-                  <div className="prose prose-sm mt-4 text-gray-500">
-                    <ul role="list">
-                      {product.details.map((item) => (
-                        <li key={item}>{item}</li>
-                      ))}
-                    </ul>
+
+                {inventoryItem.metadata?.shirt && (
+                  <div className="mt-8 border-t border-gray-200 pt-8">
+                    <h2 className="text-sm font-medium text-gray-900">
+                      Fabric &amp; Care
+                    </h2>
+                    <div className="prose prose-sm mt-4 text-gray-500">
+                      <ul role="list">
+                        {product.details.map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
-                </div>
+                )}
+
                 {/* Policies */}
                 <section aria-labelledby="policies-heading" className="mt-10">
                   <h2 id="policies-heading" className="sr-only">

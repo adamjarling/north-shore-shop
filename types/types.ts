@@ -15,7 +15,7 @@ export interface InventoryItem {
   currency: string;
   description: string | null;
   images: Array<string>;
-  metadata: ProductMetadata;
+  metadata?: ProductMetadata;
   name: string;
   price: number | null;
   priceId: string;
@@ -33,10 +33,9 @@ export type Price = Stripe.Price;
 export type Product = Stripe.Product;
 
 export interface ProductMetadata {
-  event_id?: string | number;
-  processing_fee?: number;
+  productId: string;
+  productImage: string;
   shirt?: string[];
-  venue_id?: number;
 }
 
 export type ShippingRate = Stripe.ShippingRate;
