@@ -1,41 +1,73 @@
 import { useEffect, useState } from "react";
-import { CartEntry } from "use-shopping-cart/core";
+
 import {
   CheckIcon,
   ClockIcon,
   QuestionMarkCircleIcon,
   XMarkIcon as XMarkIconMini,
 } from "@heroicons/react/20/solid";
+import { GetServerSideProps, NextPage } from "next";
+import { formatCurrencyString, useShoppingCart } from "use-shopping-cart";
+import { CartEntryWithMetadata } from "types/types";
 import Layout from "components/Layout";
 import Link from "next/link";
 import Nav from "components/nav/Nav";
+import Stripe from "stripe";
+import { fetchPostJSON } from "utils/api-helpers";
 
-import { useShoppingCart } from "use-shopping-cart";
+type RateOption = {
+  id: string;
+  amount: number;
+  display_name: string;
+};
 
-interface CartEntryWithMetadata extends CartEntry {
-  product_data?: {
-    productId?: string;
-    productImage?: string;
-    shirtSize?: string;
-  };
+interface CartPageProps {
+  shippingRates: Array<RateOption>;
 }
 
-export default function CartPage() {
+const CartPage: NextPage<CartPageProps> = ({ shippingRates }) => {
   const {
     cartDetails,
     clearCart,
     formattedTotalPrice,
+    redirectToCheckout,
     removeItem,
     totalPrice,
     setItemQuantity,
   } = useShoppingCart();
   console.log("cartDetails", cartDetails);
 
-  const cartItemsArray = cartDetails
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [shippingRate, setShippingRate] = useState<RateOption | null>(null);
+
+  const cartItemsArray: Array<CartEntryWithMetadata> = cartDetails
     ? Object.keys(cartDetails).map((key) => cartDetails[key])
     : [];
 
   console.log("cartItemsArray", cartItemsArray);
+
+  const handleCheckout: React.FormEventHandler<HTMLFormElement> = async (
+    event
+  ) => {
+    event.preventDefault();
+
+    const response = await fetchPostJSON("/api/checkout_sessions/cart", {
+      cartDetails,
+      shippingRate,
+    });
+
+    console.log("response", response);
+
+    if (response.statusCode > 399) {
+      console.error(response.message);
+      setErrorMessage(response.message);
+      setLoading(false);
+      return;
+    }
+
+    redirectToCheckout(response.id);
+  };
 
   return (
     <Layout>
@@ -47,7 +79,10 @@ export default function CartPage() {
 
         <button onClick={() => clearCart()}>Clear cart</button>
 
-        <form className="mt-12 lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-12 xl:gap-x-16">
+        <form
+          onSubmit={handleCheckout}
+          className="mt-12 lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-12 xl:gap-x-16"
+        >
           <section aria-labelledby="cart-heading" className="lg:col-span-7">
             <h2 id="cart-heading" className="sr-only">
               Items in your shopping cart
@@ -149,29 +184,79 @@ export default function CartPage() {
             </ul>
           </section>
 
-          {/* Order summary */}
-          <section
-            aria-labelledby="summary-heading"
-            className="mt-16 rounded-lg bg-gray-50 px-4 py-6 sm:p-6 lg:col-span-5 lg:mt-0 lg:p-8"
-          >
-            <h2
-              id="summary-heading"
-              className="text-lg font-medium text-gray-900"
-            >
-              Order summary
-            </h2>
+          <div className="lg:col-span-5">
+            {/* Shipping Location */}
+            <div className="rounded-lg bg-gray-50 px-4 py-6 sm:p-6 lg:mt-0 lg:p-8 mt-16">
+              <h2
+                id="your-location"
+                className="text-lg font-medium text-gray-900 mb-6"
+              >
+                Your Location
+              </h2>
+              <fieldset>
+                <legend className="sr-only">Shipping Options</legend>
+                <div className="space-y-5">
+                  {shippingRates.map((rate) => (
+                    <div key={rate.id} className="relative flex items-start">
+                      <div className="flex h-5 items-center">
+                        <input
+                          id={rate.id}
+                          aria-describedby={`${rate.id}-description`}
+                          name="plan"
+                          type="radio"
+                          onChange={(e) =>
+                            setShippingRate(JSON.parse(e.target.value))
+                          }
+                          value={JSON.stringify(rate)}
+                          className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                        />
+                      </div>
+                      <div className="ml-3 text-sm">
+                        <label
+                          htmlFor={rate.id}
+                          className="font-medium text-gray-700"
+                        >
+                          {rate.display_name}
+                        </label>
+                        <span
+                          id={`${rate.id}-description`}
+                          className="text-gray-500 border-l-2 ml-2 pl-2"
+                        >
+                          {formatCurrencyString({
+                            value: rate.amount,
+                            currency: "USD",
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </fieldset>
+            </div>
 
-            <dl className="mt-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <dt className="text-sm text-gray-600">Subtotal</dt>
-                <dd className="text-sm font-medium text-gray-900">
-                  {formattedTotalPrice}
-                </dd>
-              </div>
-              <div className="flex items-center justify-between border-t border-gray-200 pt-4">
-                <dt className="flex items-center text-sm text-gray-600">
-                  <span>Shipping estimate</span>
-                  <a
+            {/* Order summary */}
+            <section
+              aria-labelledby="summary-heading"
+              className="mt-16 rounded-lg bg-gray-50 px-4 py-6 sm:p-6 lg:mt-0 lg:p-8"
+            >
+              <h2
+                id="summary-heading"
+                className="text-lg font-medium text-gray-900"
+              >
+                Order summary
+              </h2>
+
+              <dl className="mt-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <dt className="text-sm text-gray-600">Subtotal</dt>
+                  <dd className="text-sm font-medium text-gray-900">
+                    {formattedTotalPrice}
+                  </dd>
+                </div>
+                <div className="flex items-center justify-between border-t border-gray-200 pt-4">
+                  <dt className="flex flex-col text-sm text-gray-600">
+                    <span>Shipping estimate</span>
+                    {/* <a
                     href="#"
                     className="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500"
                   >
@@ -182,49 +267,86 @@ export default function CartPage() {
                       className="h-5 w-5"
                       aria-hidden="true"
                     />
-                  </a>
-                </dt>
-                <dd className="text-sm font-medium text-gray-900">$5.00</dd>
-              </div>
-              <div className="flex items-center justify-between border-t border-gray-200 pt-4">
-                <dt className="flex text-sm text-gray-600">
-                  <span>Tax estimate</span>
-                  <a
-                    href="#"
-                    className="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500"
-                  >
-                    <span className="sr-only">
-                      Learn more about how tax is calculated
-                    </span>
-                    <QuestionMarkCircleIcon
-                      className="h-5 w-5"
-                      aria-hidden="true"
-                    />
-                  </a>
-                </dt>
-                <dd className="text-sm font-medium text-gray-900">$8.32</dd>
-              </div>
-              <div className="flex items-center justify-between border-t border-gray-200 pt-4">
-                <dt className="text-base font-medium text-gray-900">
-                  Order total
-                </dt>
-                <dd className="text-base font-medium text-gray-900">
-                  {formattedTotalPrice}
-                </dd>
-              </div>
-            </dl>
+                  </a> */}
+                  </dt>
+                  <dd className="text-sm font-medium text-gray-900">
+                    {shippingRate?.amount &&
+                      formatCurrencyString({
+                        value: shippingRate?.amount,
+                        currency: "USD",
+                      })}
+                  </dd>
+                </div>
+                <div className="flex items-center justify-between border-t border-gray-200 pt-4">
+                  <dt className="flex text-sm text-gray-600">
+                    <span>Tax estimate</span>
+                    <a
+                      href="#"
+                      className="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500"
+                    >
+                      <span className="sr-only">
+                        Learn more about how tax is calculated
+                      </span>
+                      <QuestionMarkCircleIcon
+                        className="h-5 w-5"
+                        aria-hidden="true"
+                      />
+                    </a>
+                  </dt>
+                  <dd className="text-sm font-medium text-gray-900">--</dd>
+                </div>
+                <div className="flex items-center justify-between border-t border-gray-200 pt-4">
+                  <dt className="text-base font-medium text-gray-900">
+                    Order total
+                  </dt>
+                  <dd className="text-base font-medium text-gray-900">
+                    {totalPrice &&
+                      formatCurrencyString({
+                        value:
+                          totalPrice +
+                          (shippingRate ? shippingRate?.amount : 0),
+                        currency: "USD",
+                      })}
+                  </dd>
+                </div>
+              </dl>
 
-            <div className="mt-6">
-              <button
-                type="submit"
-                className="w-full rounded-md border border-transparent bg-indigo-600 py-3 px-4 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50"
-              >
-                Checkout
-              </button>
-            </div>
-          </section>
+              <div className="mt-6">
+                <button
+                  type="submit"
+                  disabled={!shippingRate}
+                  className="w-full rounded-md border border-transparent bg-indigo-600 py-3 px-4 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50 disabled:opacity-50"
+                >
+                  Checkout
+                </button>
+              </div>
+            </section>
+          </div>
         </form>
       </div>
     </Layout>
   );
-}
+};
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: "2022-08-01",
+  });
+
+  const shippingRatesData = await stripe.shippingRates.list({
+    limit: 10,
+    active: true,
+  });
+
+  const shippingRates = shippingRatesData.data.map((rate) => ({
+    id: rate.id,
+    amount: rate.fixed_amount?.amount,
+    display_name: rate.display_name,
+  }));
+
+  return {
+    props: { shippingRates: shippingRates },
+  };
+};
+
+export default CartPage;

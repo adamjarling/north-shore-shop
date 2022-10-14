@@ -1,3 +1,4 @@
+import { CartEntry } from "use-shopping-cart/core";
 import Stripe from "stripe";
 
 export type StripeCheckoutResponse = Stripe.Checkout.Session;
@@ -7,6 +8,14 @@ export type StripeCheckoutShippingDetails =
 export interface Breadcrumb {
   label: string;
   href?: string;
+}
+
+export interface CartEntryWithMetadata extends CartEntry {
+  product_data?: {
+    productId?: string;
+    productImage?: string;
+    shirtSize?: string;
+  };
 }
 
 export interface InventoryItem {
@@ -24,7 +33,7 @@ export interface InventoryItem {
   url?: string | null;
 }
 
-export type LineItem = Stripe.LineItem;
+export type LineItem = Stripe.Checkout.SessionCreateParams.LineItem;
 
 export type Refund = Stripe.Refund;
 
