@@ -42,8 +42,8 @@ export type Price = Stripe.Price;
 export type Product = Stripe.Product;
 
 export interface ProductMetadata {
-  productId: string;
-  productImage: string;
+  productId?: string;
+  productImage?: string;
   shirt?: string[];
 }
 

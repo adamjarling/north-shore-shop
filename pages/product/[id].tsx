@@ -33,6 +33,7 @@ const policies = [
   },
 ];
 
+// @ts-ignore
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
@@ -285,6 +286,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ inventoryItem }) => {
                         value={selectedSize}
                         onChange={setSelectedSize}
                         className="mt-2"
+                        // @ts-ignore
                         by="id"
                       >
                         <RadioGroup.Label className="sr-only">

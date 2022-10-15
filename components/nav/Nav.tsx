@@ -15,7 +15,7 @@ const navigation = [
 ];
 
 export default function Nav() {
-  const { cartCount } = useShoppingCart();
+  const { cartCount, cartDetails } = useShoppingCart();
 
   return (
     <Popover>
@@ -53,6 +53,7 @@ export default function Nav() {
               </Link>
             ))}
           </div>
+          {/* @ts-ignore */}
           {cartCount > 0 && (
             <div className="hidden md:absolute md:inset-y-0 md:right-0 md:flex md:items-center md:justify-end">
               <span className="inline-flex rounded-md shadow">
@@ -128,12 +129,14 @@ export default function Nav() {
                 </a>
               ))}
             </div>
-            <a
-              href="#"
-              className="block w-full bg-gray-50 px-5 py-3 text-center font-medium text-indigo-600 hover:bg-gray-100"
-            >
-              Checkout
-            </a>
+            {/* @ts-ignore */}
+            {cartCount > 0 && (
+              <Link href="/cart">
+                <a className="block w-full bg-gray-50 px-5 py-3 text-center font-medium text-indigo-600 hover:bg-gray-100">
+                  Checkout
+                </a>
+              </Link>
+            )}
           </div>
         </Popover.Panel>
       </Transition>
