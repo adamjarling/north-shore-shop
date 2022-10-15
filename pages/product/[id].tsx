@@ -17,6 +17,7 @@ import { RadioGroup } from "@headlessui/react";
 import Stripe from "stripe";
 import { useShoppingCart } from "use-shopping-cart";
 import { buildPriceProductInventory } from "lib/build-price-product-inventory";
+import { useRouter } from "next/router";
 import { useState } from "react";
 
 const policies = [
@@ -42,6 +43,12 @@ interface ProductPageProps {
 
 const ProductPage: React.FC<ProductPageProps> = ({ inventoryItem }) => {
   const { addItem } = useShoppingCart();
+  const router = useRouter();
+  const shirt = inventoryItem.metadata?.shirt;
+
+  function isInStock(size: string) {
+    return (shirt && shirt.includes("xs")) || !shirt;
+  }
 
   const product = {
     name: inventoryItem.name,
@@ -63,12 +70,12 @@ const ProductPage: React.FC<ProductPageProps> = ({ inventoryItem }) => {
       { name: "Black", bgColor: "bg-gray-900", selectedColor: "ring-gray-900" },
     ],
     sizes: [
-      { name: "XS", inStock: inventoryItem.metadata.shirt?.includes("xs") },
-      { name: "S", inStock: inventoryItem.metadata.shirt?.includes("s") },
-      { name: "M", inStock: inventoryItem.metadata.shirt?.includes("m") },
-      { name: "L", inStock: inventoryItem.metadata.shirt?.includes("l") },
-      { name: "XL", inStock: inventoryItem.metadata.shirt?.includes("xl") },
-      { name: "XXL", inStock: inventoryItem.metadata.shirt?.includes("xxl") },
+      { id: 1, name: "XS", inStock: isInStock("xs") },
+      { id: 2, name: "S", inStock: isInStock("s") },
+      { id: 3, name: "M", inStock: isInStock("m") },
+      { id: 4, name: "L", inStock: isInStock("l") },
+      { id: 5, name: "XL", inStock: isInStock("xl") },
+      { id: 6, name: "XXL", inStock: isInStock("xxl") },
     ],
     description: inventoryItem.description,
     details: [
@@ -91,69 +98,72 @@ const ProductPage: React.FC<ProductPageProps> = ({ inventoryItem }) => {
       product_data: {
         productId: inventoryItem.id,
         productImage: inventoryItem.images[0],
-        shirtSize: selectedSize.name,
+        ...(shirt && { shirtSize: selectedSize.name }),
       },
     });
+
+    setTimeout(() => {
+      router.push("/cart");
+    }, 500);
   };
 
   return (
     <Layout>
-      <div className="bg-white">
-        <div className="pt-6 pb-16 sm:pb-24">
-          <Nav />
-          <nav
-            aria-label="Breadcrumb"
-            className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-10"
-          >
-            <ol role="list" className="flex items-center space-x-4">
-              {product.breadcrumbs.map((breadcrumb) => (
-                <li key={breadcrumb.id}>
-                  <div className="flex items-center">
-                    <a
-                      href={breadcrumb.href}
-                      className="mr-4 text-sm font-medium text-gray-900"
-                    >
-                      {breadcrumb.name}
-                    </a>
-                    <svg
-                      viewBox="0 0 6 20"
-                      xmlns="http://www.w3.org/2000/svg"
-                      aria-hidden="true"
-                      className="h-5 w-auto text-gray-300"
-                    >
-                      <path
-                        d="M4.878 4.34H3.551L.27 16.532h1.327l3.281-12.19z"
-                        fill="currentColor"
-                      />
-                    </svg>
-                  </div>
-                </li>
-              ))}
-              <li className="text-sm">
-                <a
-                  href={product.href}
-                  aria-current="page"
-                  className="font-medium text-gray-500 hover:text-gray-600"
-                >
-                  {product.name}
-                </a>
-              </li>
-            </ol>
-          </nav>
-
-          <div className="mx-auto mt-8 max-w-2xl px-4 sm:px-6 lg:max-w-7xl lg:px-8">
-            <div className="lg:grid lg:auto-rows-min lg:grid-cols-12 lg:gap-x-8">
-              <div className="lg:col-span-5 lg:col-start-8">
-                <div className="flex justify-between">
-                  <h1 className="text-xl font-medium text-gray-900">
-                    {product.name}
-                  </h1>
-                  <p className="text-xl font-medium text-gray-900">
-                    {product.price}
-                  </p>
+      <div className="bg-white pb-16 sm:pb-24">
+        <Nav />
+        <nav
+          aria-label="Breadcrumb"
+          className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-10"
+        >
+          <ol role="list" className="flex items-center space-x-4">
+            {product.breadcrumbs.map((breadcrumb) => (
+              <li key={breadcrumb.id}>
+                <div className="flex items-center">
+                  <a
+                    href={breadcrumb.href}
+                    className="mr-4 text-sm font-medium text-gray-900"
+                  >
+                    {breadcrumb.name}
+                  </a>
+                  <svg
+                    viewBox="0 0 6 20"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                    className="h-5 w-auto text-gray-300"
+                  >
+                    <path
+                      d="M4.878 4.34H3.551L.27 16.532h1.327l3.281-12.19z"
+                      fill="currentColor"
+                    />
+                  </svg>
                 </div>
-                {/* Reviews */}
-                {/* <div className="mt-4">
+              </li>
+            ))}
+            <li className="text-sm">
+              <a
+                href={product.href}
+                aria-current="page"
+                className="font-medium text-gray-500 hover:text-gray-600"
+              >
+                {product.name}
+              </a>
+            </li>
+          </ol>
+        </nav>
+
+        <div className="mx-auto mt-8 max-w-2xl px-4 sm:px-6 lg:max-w-7xl lg:px-8">
+          <div className="lg:grid lg:auto-rows-min lg:grid-cols-12 lg:gap-x-8">
+            <div className="lg:col-span-5 lg:col-start-8">
+              <div className="flex justify-between">
+                <h1 className="text-xl font-medium text-gray-900">
+                  {product.name}
+                </h1>
+                <p className="text-xl font-medium text-gray-900">
+                  {product.price}
+                </p>
+              </div>
+              {/* Reviews */}
+              {/* <div className="mt-4">
                   <h2 className="sr-only">Reviews</h2>
                   <div className="flex items-center">
                     <p className="text-sm text-gray-700">
@@ -190,194 +200,192 @@ const ProductPage: React.FC<ProductPageProps> = ({ inventoryItem }) => {
                     </div>
                   </div>
                 </div> */}
-              </div>
-              {/* Image gallery */}
-              <div className="mt-8 lg:col-span-7 lg:col-start-1 lg:row-span-3 lg:row-start-1 lg:mt-0">
-                <h2 className="sr-only">Images</h2>
-                <div className="grid grid-cols-1 lg:grid-cols-2 lg:grid-rows-3 lg:gap-8">
-                  {product.images.map((image) => (
-                    <img
-                      key={image.id}
-                      src={image.imageSrc}
-                      alt={image.imageAlt}
-                      className={classNames(
-                        image.primary
-                          ? "lg:col-span-2 lg:row-span-2"
-                          : "hidden lg:block",
-                        "rounded-lg"
-                      )}
-                    />
-                  ))}
-                </div>
-              </div>
-              <div className="mt-8 lg:col-span-5">
-                <form>
-                  {inventoryItem.metadata?.shirt && (
-                    <>
-                      {/* Color picker */}
-                      <div>
-                        <h2 className="text-sm font-medium text-gray-900">
-                          Color
-                        </h2>
-                        <RadioGroup
-                          value={selectedColor}
-                          onChange={setSelectedColor}
-                          className="mt-2"
-                        >
-                          <RadioGroup.Label className="sr-only">
-                            {" "}
-                            Choose a color{" "}
-                          </RadioGroup.Label>
-                          <div className="flex items-center space-x-3">
-                            {product.colors.map((color) => (
-                              <RadioGroup.Option
-                                key={color.name}
-                                value={color}
-                                className={({ active, checked }) =>
-                                  classNames(
-                                    color.selectedColor,
-                                    active && checked
-                                      ? "ring ring-offset-1"
-                                      : "",
-                                    !active && checked ? "ring-2" : "",
-                                    "-m-0.5 relative p-0.5 rounded-full flex items-center justify-center cursor-pointer focus:outline-none"
-                                  )
-                                }
-                              >
-                                <RadioGroup.Label as="span" className="sr-only">
-                                  {" "}
-                                  {color.name}{" "}
-                                </RadioGroup.Label>
-                                <span
-                                  aria-hidden="true"
-                                  className={classNames(
-                                    color.bgColor,
-                                    "h-8 w-8 border border-black border-opacity-10 rounded-full"
-                                  )}
-                                />
-                              </RadioGroup.Option>
-                            ))}
-                          </div>
-                        </RadioGroup>
-                      </div>
-                      {/* Size picker */}
-                      <div className="mt-8">
-                        <div className="flex items-center justify-between">
-                          <h2 className="text-sm font-medium text-gray-900">
-                            Size
-                          </h2>
-                          <a
-                            href="#"
-                            className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
-                          >
-                            See sizing chart
-                          </a>
-                        </div>
-                        <RadioGroup
-                          value={selectedSize}
-                          onChange={setSelectedSize}
-                          className="mt-2"
-                        >
-                          <RadioGroup.Label className="sr-only">
-                            {" "}
-                            Choose a size{" "}
-                          </RadioGroup.Label>
-                          <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
-                            {product.sizes.map((size) => (
-                              <RadioGroup.Option
-                                key={size.name}
-                                value={size}
-                                className={({ active, checked }) =>
-                                  classNames(
-                                    size.inStock
-                                      ? "cursor-pointer focus:outline-none"
-                                      : "opacity-25 cursor-not-allowed",
-                                    active
-                                      ? "ring-2 ring-offset-2 ring-indigo-500"
-                                      : "",
-                                    checked
-                                      ? "bg-indigo-600 border-transparent text-white hover:bg-indigo-700"
-                                      : "bg-white border-gray-200 text-gray-900 hover:bg-gray-50",
-                                    "border rounded-md py-3 px-3 flex items-center justify-center text-sm font-medium uppercase sm:flex-1"
-                                  )
-                                }
-                                disabled={!size.inStock}
-                              >
-                                <RadioGroup.Label as="span">
-                                  {size.name}
-                                </RadioGroup.Label>
-                              </RadioGroup.Option>
-                            ))}
-                          </div>
-                        </RadioGroup>
-                      </div>
-                    </>
-                  )}
-
-                  <button
-                    onClick={handleAddItemClick}
-                    type="button"
-                    className="mt-8 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 py-3 px-8 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                  >
-                    Add to cart
-                  </button>
-                </form>
-                {/* Product details */}
-                <div className="mt-10">
-                  <h2 className="text-sm font-medium text-gray-900">
-                    Description
-                  </h2>
-                  <div
-                    className="prose prose-sm mt-4 text-gray-500"
-                    dangerouslySetInnerHTML={{
-                      __html: product.description as string,
-                    }}
+            </div>
+            {/* Image gallery */}
+            <div className="mt-8 lg:col-span-7 lg:col-start-1 lg:row-span-3 lg:row-start-1 lg:mt-0">
+              <h2 className="sr-only">Images</h2>
+              <div className="grid grid-cols-1 lg:grid-cols-2 lg:grid-rows-3 lg:gap-8">
+                {product.images.map((image) => (
+                  <img
+                    key={image.id}
+                    src={image.imageSrc}
+                    alt={image.imageAlt}
+                    className={classNames(
+                      image.primary
+                        ? "lg:col-span-2 lg:row-span-2"
+                        : "hidden lg:block",
+                      "rounded-lg"
+                    )}
                   />
-                </div>
-
+                ))}
+              </div>
+            </div>
+            <div className="mt-8 lg:col-span-5">
+              <form>
                 {inventoryItem.metadata?.shirt && (
-                  <div className="mt-8 border-t border-gray-200 pt-8">
-                    <h2 className="text-sm font-medium text-gray-900">
-                      Fabric &amp; Care
-                    </h2>
-                    <div className="prose prose-sm mt-4 text-gray-500">
-                      <ul role="list">
-                        {product.details.map((item) => (
-                          <li key={item}>{item}</li>
-                        ))}
-                      </ul>
+                  <>
+                    {/* Color picker */}
+                    <div>
+                      <h2 className="text-sm font-medium text-gray-900">
+                        Color
+                      </h2>
+                      <RadioGroup
+                        value={selectedColor}
+                        onChange={setSelectedColor}
+                        className="mt-2"
+                      >
+                        <RadioGroup.Label className="sr-only">
+                          {" "}
+                          Choose a color{" "}
+                        </RadioGroup.Label>
+                        <div className="flex items-center space-x-3">
+                          {product.colors.map((color) => (
+                            <RadioGroup.Option
+                              key={color.name}
+                              value={color}
+                              className={({ active, checked }) =>
+                                classNames(
+                                  color.selectedColor,
+                                  active && checked ? "ring ring-offset-1" : "",
+                                  !active && checked ? "ring-2" : "",
+                                  "-m-0.5 relative p-0.5 rounded-full flex items-center justify-center cursor-pointer focus:outline-none"
+                                )
+                              }
+                            >
+                              <RadioGroup.Label as="span" className="sr-only">
+                                {" "}
+                                {color.name}{" "}
+                              </RadioGroup.Label>
+                              <span
+                                aria-hidden="true"
+                                className={classNames(
+                                  color.bgColor,
+                                  "h-8 w-8 border border-black border-opacity-10 rounded-full"
+                                )}
+                              />
+                            </RadioGroup.Option>
+                          ))}
+                        </div>
+                      </RadioGroup>
                     </div>
-                  </div>
+                    {/* Size picker */}
+                    <div className="mt-8">
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-sm font-medium text-gray-900">
+                          Size
+                        </h2>
+                        <a
+                          href="#"
+                          className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+                        >
+                          See sizing chart
+                        </a>
+                      </div>
+                      <RadioGroup
+                        value={selectedSize}
+                        onChange={setSelectedSize}
+                        className="mt-2"
+                        by="id"
+                      >
+                        <RadioGroup.Label className="sr-only">
+                          {" "}
+                          Choose a size{" "}
+                        </RadioGroup.Label>
+                        <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+                          {product.sizes.map((size) => (
+                            <RadioGroup.Option
+                              key={size.id}
+                              value={size}
+                              className={({ active, checked }) =>
+                                classNames(
+                                  size.inStock
+                                    ? "cursor-pointer focus:outline-none"
+                                    : "opacity-25 cursor-not-allowed",
+                                  active
+                                    ? "ring-2 ring-offset-2 ring-indigo-500"
+                                    : "",
+                                  checked
+                                    ? "bg-indigo-600 border-transparent text-white hover:bg-indigo-700"
+                                    : "bg-white border-gray-200 text-gray-900 hover:bg-gray-50",
+                                  "border rounded-md py-3 px-3 flex items-center justify-center text-sm font-medium uppercase sm:flex-1"
+                                )
+                              }
+                              disabled={!size.inStock}
+                            >
+                              <RadioGroup.Label as="span">
+                                {size.name}
+                              </RadioGroup.Label>
+                            </RadioGroup.Option>
+                          ))}
+                        </div>
+                      </RadioGroup>
+                    </div>
+                  </>
                 )}
 
-                {/* Policies */}
-                <section aria-labelledby="policies-heading" className="mt-10">
-                  <h2 id="policies-heading" className="sr-only">
-                    Our Policies
-                  </h2>
-                  <dl className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                    {policies.map((policy) => (
-                      <div
-                        key={policy.name}
-                        className="rounded-lg border border-gray-200 bg-gray-50 p-6 text-center"
-                      >
-                        <dt>
-                          <policy.icon
-                            className="mx-auto h-6 w-6 flex-shrink-0 text-gray-400"
-                            aria-hidden="true"
-                          />
-                          <span className="mt-4 text-sm font-medium text-gray-900">
-                            {policy.name}
-                          </span>
-                        </dt>
-                        <dd className="mt-1 text-sm text-gray-500">
-                          {policy.description}
-                        </dd>
-                      </div>
-                    ))}
-                  </dl>
-                </section>
+                <button
+                  onClick={handleAddItemClick}
+                  type="button"
+                  className="mt-8 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 py-3 px-8 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                >
+                  Add to cart
+                </button>
+              </form>
+              {/* Product details */}
+              <div className="mt-10">
+                <h2 className="text-sm font-medium text-gray-900">
+                  Description
+                </h2>
+                <div
+                  className="prose prose-sm mt-4 text-gray-500"
+                  dangerouslySetInnerHTML={{
+                    __html: product.description as string,
+                  }}
+                />
               </div>
+
+              {inventoryItem.metadata?.shirt && (
+                <div className="mt-8 border-t border-gray-200 pt-8">
+                  <h2 className="text-sm font-medium text-gray-900">
+                    Fabric &amp; Care
+                  </h2>
+                  <div className="prose prose-sm mt-4 text-gray-500">
+                    <ul role="list">
+                      {product.details.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              )}
+
+              {/* Policies */}
+              <section aria-labelledby="policies-heading" className="mt-10">
+                <h2 id="policies-heading" className="sr-only">
+                  Our Policies
+                </h2>
+                <dl className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                  {policies.map((policy) => (
+                    <div
+                      key={policy.name}
+                      className="rounded-lg border border-gray-200 bg-gray-50 p-6 text-center"
+                    >
+                      <dt>
+                        <policy.icon
+                          className="mx-auto h-6 w-6 flex-shrink-0 text-gray-400"
+                          aria-hidden="true"
+                        />
+                        <span className="mt-4 text-sm font-medium text-gray-900">
+                          {policy.name}
+                        </span>
+                      </dt>
+                      <dd className="mt-1 text-sm text-gray-500">
+                        {policy.description}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </section>
             </div>
           </div>
         </div>

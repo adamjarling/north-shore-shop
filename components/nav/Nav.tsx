@@ -1,7 +1,12 @@
+import {
+  Bars3Icon,
+  ShoppingBagIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
+import { Popover, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import Link from "next/link";
-import { Popover, Transition } from "@headlessui/react";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { useShoppingCart } from "use-shopping-cart";
 
 const navigation = [
   { name: "Shop All Products", href: "/" },
@@ -10,9 +15,11 @@ const navigation = [
 ];
 
 export default function Nav() {
+  const { cartCount } = useShoppingCart();
+
   return (
     <Popover>
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-6">
         <nav
           className="relative flex items-center justify-between sm:h-10 md:justify-center"
           aria-label="Global"
@@ -46,15 +53,38 @@ export default function Nav() {
               </Link>
             ))}
           </div>
-          <div className="hidden md:absolute md:inset-y-0 md:right-0 md:flex md:items-center md:justify-end">
-            <span className="inline-flex rounded-md shadow">
+          {cartCount > 0 && (
+            <div className="hidden md:absolute md:inset-y-0 md:right-0 md:flex md:items-center md:justify-end">
+              <span className="inline-flex rounded-md shadow">
+                <Link href="/cart">
+                  <a className="inline-flex items-center rounded-md border border-transparent bg-white px-4 py-2 text-base font-medium text-indigo-600 hover:bg-gray-50">
+                    My Cart
+                    <ShoppingBagIcon
+                      className="ml-2 h-6 w-6 flex-shrink-0 "
+                      aria-hidden="true"
+                    />
+                    <span className="ml-2 text-sm font-medium">
+                      {cartCount}
+                    </span>
+                    <span className="sr-only">items in cart, view bag</span>
+                  </a>
+                </Link>
+              </span>
+              {/* Cart */}
+              {/* <div className="ml-4 flow-root lg:ml-8 text-indigo-600">
               <Link href="/cart">
-                <a className="inline-flex items-center rounded-md border border-transparent bg-white px-4 py-2 text-base font-medium text-indigo-600 hover:bg-gray-50">
-                  Checkout
+                <a className="group -m-2 flex items-center p-2">
+                  <ShoppingBagIcon
+                    className="h-6 w-6 flex-shrink-0 "
+                    aria-hidden="true"
+                  />
+                  <span className="ml-2 text-sm font-medium">{cartCount}</span>
+                  <span className="sr-only">items in cart, view bag</span>
                 </a>
               </Link>
-            </span>
-          </div>
+            </div> */}
+            </div>
+          )}
         </nav>
       </div>
 

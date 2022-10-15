@@ -14,6 +14,7 @@ export default function Document() {
           href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Major+Mono+Display&display=swap"
           rel="stylesheet"
         />
+        <link rel="icon" href="/images/favicon.png" />
       </Head>
       <body>
         <Main />

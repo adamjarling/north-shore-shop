@@ -15,7 +15,7 @@ type ObjectLiteral =
       [key: string]: never;
     }
   | {
-      [key: string]: string[];
+      [key: string]: string;
     };
 
 import Stripe from "stripe";
@@ -47,6 +47,7 @@ export default async function handler(
         const shirtSize = item.product_data?.shirtSize;
         const productId = item.product_data?.productId;
         if (shirtSize && productId) {
+          // @ts-ignore
           metadata[productId] = item.product_data?.shirtSize;
         }
       });
@@ -57,6 +58,7 @@ export default async function handler(
         submit_type: "pay",
         payment_method_types: ["card"],
         billing_address_collection: "auto",
+        automatic_tax: { enabled: true },
         metadata,
         shipping_address_collection: {
           allowed_countries: ["US", "CA"],

@@ -85,7 +85,7 @@ export default function Example() {
         </div>
       </div>
 
-      <div className="relative pt-6 pb-16 sm:pb-24">
+      <div className="relative pb-16 sm:pb-24">
         <Nav />
 
         <main className="mx-auto mt-16 max-w-7xl px-4 sm:mt-24">
@@ -101,7 +101,7 @@ export default function Example() {
               lorem cupidatat commodo. Elit sunt amet fugiat veniam occaecat
               fugiat aliqua.
             </p>
-            <div className="mx-auto mt-5 max-w-md sm:flex sm:justify-center md:mt-8">
+            {/* <div className="mx-auto mt-5 max-w-md sm:flex sm:justify-center md:mt-8">
               <div className="rounded-md shadow">
                 <a
                   href="#"
@@ -118,7 +118,7 @@ export default function Example() {
                   Live demo
                 </a>
               </div>
-            </div>
+            </div> */}
           </div>
         </main>
       </div>
