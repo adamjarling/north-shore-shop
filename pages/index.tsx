@@ -1,9 +1,7 @@
-import CheckoutForm from "components/CheckoutForm";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Hero from "components/Hero";
 import { InventoryItem } from "types/types";
-import Image from "next/image";
 import Layout from "components/Layout";
 import Products from "components/Products";
 import Stripe from "stripe";
