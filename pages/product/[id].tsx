@@ -1,9 +1,12 @@
 /** Upload photos to: https://furbabyrocks.imgur.com/ */
 
+import "photoswipe/dist/photoswipe.css";
+
 import {
   CurrencyDollarIcon,
   GlobeAmericasIcon,
 } from "@heroicons/react/24/outline";
+import { Gallery, Item } from "react-photoswipe-gallery";
 import {
   formatAmountFromStripe,
   formatAmountForDisplay,
@@ -11,6 +14,7 @@ import {
 import { GetServerSideProps } from "next";
 import { InventoryItem } from "types/types";
 import Layout from "components/Layout";
+import Link from "next/link";
 import Nav from "components/nav/Nav";
 import { StarIcon } from "@heroicons/react/20/solid";
 import { RadioGroup } from "@headlessui/react";
@@ -27,7 +31,7 @@ const policies = [
     description: "Get your order in 2-3 weeks",
   },
   {
-    name: "Support Local Art",
+    name: "Support Local Business",
     icon: CurrencyDollarIcon,
     description: "We appreciate your purchase!",
   },
@@ -60,7 +64,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ inventoryItem }) => {
     rating: 3.9,
     reviewCount: 512,
     href: "#",
-    breadcrumbs: [{ id: 1, name: "All Products", href: "#" }],
+    breadcrumbs: [{ id: 1, name: "All Products", href: "/" }],
     images: inventoryItem.images.map((image, i) => ({
       id: i + 1,
       imageSrc: inventoryItem?.images[i],
@@ -120,12 +124,11 @@ const ProductPage: React.FC<ProductPageProps> = ({ inventoryItem }) => {
             {product.breadcrumbs.map((breadcrumb) => (
               <li key={breadcrumb.id}>
                 <div className="flex items-center">
-                  <a
-                    href={breadcrumb.href}
-                    className="mr-4 text-sm font-medium text-gray-900"
-                  >
-                    {breadcrumb.name}
-                  </a>
+                  <Link href={breadcrumb.href}>
+                    <a className="mr-4 text-sm font-medium text-gray-900">
+                      {breadcrumb.name}
+                    </a>
+                  </Link>
                   <svg
                     viewBox="0 0 6 20"
                     xmlns="http://www.w3.org/2000/svg"

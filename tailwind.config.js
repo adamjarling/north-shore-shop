@@ -7,8 +7,9 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        headline: ["Bebas Neue", "Arial"],
-        mono: ["Major Mono Display", "monospace"],
+        // sans: ["Josefin Sans", "sans-serif"],
+        // headline: ["Bebas Neue", "Arial"],
+        mono: ["Roboto Mono", "monospace"],
       },
     },
   },

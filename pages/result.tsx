@@ -37,7 +37,7 @@ const ResultPage: NextPage<ResultPageProps> = ({ allProducts }) => {
   const shippingDetails = data?.shipping_details;
   const billingDetails = data?.customer_details;
   const paymentMethodDetails =
-    payment_intent.charges?.data[0].payment_method_details;
+    payment_intent?.charges?.data[0].payment_method_details;
   console.log("paymentMethodDetails", paymentMethodDetails);
   console.log("lineItems", lineItems);
 
@@ -68,11 +68,10 @@ const ResultPage: NextPage<ResultPageProps> = ({ allProducts }) => {
         <div className="max-w-xl">
           <h1 className="text-base font-medium text-indigo-600">Thank you!</h1>
           <p className="mt-2 text-4xl font-bold tracking-tight sm:text-5xl">
-            Its on the way!
+            It&apos;s on the way!
           </p>
           <p className="mt-2 text-base text-gray-500">
-            Your order #{payment_intent.id} has shipped and will be with you
-            soon.
+            Your order #{payment_intent.id} will be shipped and with you soon.
           </p>
 
           {/* <dl className="mt-12 text-sm font-medium">

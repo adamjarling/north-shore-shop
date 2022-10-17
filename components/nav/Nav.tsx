@@ -10,8 +10,8 @@ import { useShoppingCart } from "use-shopping-cart";
 
 const navigation = [
   { name: "Shop All Products", href: "/" },
-  { name: "About", href: "/about" },
-  { name: "Rogers Park Chicago", href: "/" },
+  // { name: "About", href: "/about" },
+  // { name: "Rogers Park Chicago", href: "/" },
 ];
 
 export default function Nav() {
