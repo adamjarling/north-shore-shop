@@ -52,7 +52,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ inventoryItem }) => {
   const shirt = inventoryItem.metadata?.shirt;
 
   function isInStock(size: string) {
-    return (shirt && shirt.includes("xs")) || !shirt;
+    return (shirt && shirt.includes(size)) || !shirt;
   }
 
   const product = {
