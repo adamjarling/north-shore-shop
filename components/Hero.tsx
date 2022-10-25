@@ -93,12 +93,11 @@ export default function Example() {
             <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
               <span className="block xl:inline">North Shore Shop</span>{" "}
               <span className="block text-indigo-600 xl:inline">
-                Indie label and art shop
+                Custom Artwork Music and Band Swag
               </span>
             </h1>
             <p className="mx-auto mt-3 max-w-md text-base text-gray-500 sm:text-lg md:mt-5 md:max-w-3xl md:text-xl">
-              Beach energy. Handmade artisan work inspired and crafted in the
-              Rogers Park neighborhood, Chicago USA
+              Made with 🖤 and Beach Vibes in Rogers Park, Chicago USA
             </p>
             {/* <div className="mx-auto mt-5 max-w-md sm:flex sm:justify-center md:mt-8">
               <div className="rounded-md shadow">
