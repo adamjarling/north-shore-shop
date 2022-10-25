@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useShoppingCart } from "use-shopping-cart";
 
 const navigation = [
-  { name: "Shop All Products", href: "/" },
+  { name: "Shop All Products", href: "/product/list" },
   // { name: "About", href: "/about" },
   // { name: "Rogers Park Chicago", href: "/" },
 ];
