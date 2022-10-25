@@ -17,6 +17,12 @@ export default function Document() {
         />
 
         <link rel="icon" href="/images/favicon.png" />
+        <meta property="og:image" content="/images/screen-prints-fur2.jpg" />
+        <meta
+          name="og:title"
+          content={"North Shore Shop - Art and Music in Rogers Park"}
+        />
+        <meta name="twitter:card" content="summary_large_image" />
       </Head>
       <body>
         <Main />

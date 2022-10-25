@@ -76,6 +76,7 @@ const PhotoGallery: React.FC = () => {
             >
               {({ ref, open }) => (
                 <>
+                  {/* @ts-ignore */}
                   <img ref={ref} onClick={open} src={photo.src} />
                 </>
               )}
