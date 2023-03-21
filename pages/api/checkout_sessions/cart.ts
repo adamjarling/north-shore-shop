@@ -1,6 +1,8 @@
 import { CartEntryWithMetadata, LineItem } from "types/types";
 import { NextApiRequest, NextApiResponse } from "next";
 
+import Stripe from "stripe";
+
 /*
  * Product data can be loaded from anywhere. In this case, we’re loading it from
  * a local JSON file, but this could also come from an async call to your
@@ -18,7 +20,6 @@ type ObjectLiteral =
       [key: string]: string;
     };
 
-import Stripe from "stripe";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   // https://github.com/stripe/stripe-node#configuration
   apiVersion: "2022-08-01",
@@ -60,14 +61,19 @@ export default async function handler(
         billing_address_collection: "auto",
         automatic_tax: { enabled: true },
         metadata,
-        shipping_address_collection: {
-          allowed_countries: ["US", "CA"],
-        },
-        shipping_options: [
-          {
-            shipping_rate: shippingRate.id,
+
+        ...(shippingRate && {
+          shipping_address_collection: {
+            allowed_countries: ["US", "CA"],
           },
-        ],
+        }),
+        ...(shippingRate && {
+          shipping_options: [
+            {
+              shipping_rate: shippingRate.id,
+            },
+          ],
+        }),
         line_items,
         success_url: `${req.headers.origin}/result?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${req.headers.origin}/cart`,
